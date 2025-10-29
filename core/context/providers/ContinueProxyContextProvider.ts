@@ -11,8 +11,8 @@ import { BaseContextProvider } from "../index.js";
 class ContinueProxyContextProvider extends BaseContextProvider {
   static description: ContextProviderDescription = {
     title: "continue-proxy",
-    displayTitle: "Continue Proxy",
-    description: "Retrieve a context item from a Continue for Teams add-on",
+    displayTitle: "NeoCode Proxy",
+    description: "Retrieve a context item from a NeoCode for Teams add-on",
     type: "submenu",
   };
 

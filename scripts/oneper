@@ -312,9 +312,9 @@ install_from_pr() {
 }
 
 install_latest() {
-    echo "🚀 Installing latest pre-release Continue extension..."
-    if code --install-extension --pre-release Continue.continue --force; then
-        echo "✅ Successfully installed latest pre-release Continue extension"
+    echo "🚀 Installing latest pre-release NeoCode extension..."
+    if code --install-extension --pre-release NeoAI.neocode --force; then
+        echo "✅ Successfully installed latest pre-release NeoCode extension"
         echo ""
         echo "💡 To use the new extension version, reload your VS Code window:"
         echo "   • Press Ctrl+Shift+P (Cmd+Shift+P on Mac)"

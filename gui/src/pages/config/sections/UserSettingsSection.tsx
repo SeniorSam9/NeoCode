@@ -177,7 +177,7 @@ export function UserSettingsSection() {
           </div>
 
           {/* Telemetry Settings */}
-          <div>
+          {/* <div>
             <ConfigHeader title="Telemetry" variant="sm" />
             <Card>
               <div className="flex flex-col gap-4">
@@ -193,7 +193,7 @@ export function UserSettingsSection() {
                 />
               </div>
             </Card>
-          </div>
+          </div> */}
 
           {/* Appearance Settings */}
           <div>
@@ -307,7 +307,7 @@ export function UserSettingsSection() {
                   <UserSetting
                     type="toggle"
                     title="Only use system message tools"
-                    description=" Continue will not attempt to use native tool calling and will only use system message tools."
+                    description=" NeoCode will not attempt to use native tool calling and will only use system message tools."
                     value={onlyUseSystemMessageTools}
                     onChange={(value) =>
                       handleUpdate({ onlyUseSystemMessageTools: value })

@@ -3,7 +3,6 @@ import {
   ChevronDownIcon,
   Cog6ToothIcon,
   CubeIcon,
-  PlusIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -304,7 +303,7 @@ function ModelSelect() {
             <>
               {selectedProfile?.profileType === "local" && (
                 <>
-                  <Divider className="!mb-0" />
+                  {/* <Divider className="!mb-0" />
                   <ListboxOption
                     key={options.length}
                     onClick={onClickAddModel}
@@ -316,7 +315,7 @@ function ModelSelect() {
                       <PlusIcon className="mr-1.5 h-3.5 w-3.5" />
                       Add Chat model
                     </span>
-                  </ListboxOption>
+                  </ListboxOption> */}
                 </>
               )}
 

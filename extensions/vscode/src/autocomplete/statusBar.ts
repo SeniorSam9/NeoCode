@@ -48,36 +48,36 @@ const statusBarItemText = (
   error?: boolean,
 ) => {
   if (error) {
-    return "$(alert) Continue (config error)";
+    return "$(alert) NeoCode (config error)";
   }
 
   let text: string;
   switch (status) {
     case undefined:
       if (loading) {
-        text = "$(loading~spin) Continue";
+        text = "$(loading~spin) NeoCode";
       } else {
-        text = "Continue";
+        text = "NeoCode";
       }
       break;
     case StatusBarStatus.Disabled:
-      text = "$(circle-slash) Continue";
+      text = "$(circle-slash) NeoCode";
       break;
     case StatusBarStatus.Enabled:
-      text = "$(check) Continue";
+      text = "$(check) NeoCode";
       break;
     case StatusBarStatus.Paused:
-      text = "$(debug-pause) Continue";
+      text = "$(debug-pause) NeoCode";
       break;
     default:
-      text = "Continue";
+      text = "NeoCode";
   }
 
   // Append Next Edit indicator if enabled.
   const config = vscode.workspace.getConfiguration(EXTENSION_NAME);
   const nextEditEnabled = config.get<boolean>("enableNextEdit") ?? false;
   if (nextEditEnabled) {
-    text += " (NE)";
+    text += "";
   }
 
   return text;

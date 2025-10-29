@@ -1,27 +1,27 @@
 {
-  "name": "continue",
+  "name": "neocode",
   "icon": "media/icon.png",
-  "author": "Continue Dev, Inc",
+  "author": "NeoAI",
   "version": "1.3.23",
   "repository": {
-    "type": "git",
-    "url": "https://github.com/continuedev/continue"
+    "type": "",
+    "url": ""
   },
   "extensionKind": [
     "ui",
     "workspace"
   ],
   "bugs": {
-    "url": "https://github.com/continuedev/continue/issues",
-    "email": "nate@continue.dev"
+    "url": "https://github.com/continuedev/",
+    "email": "SGE.30003867.NEOGIAADMIN@Exchange.Aramco.com.sa"
   },
-  "homepage": "https://continue.dev",
-  "qna": "https://github.com/continuedev/continue/issues/new/choose",
+  "homepage": "",
+  "qna": "",
   "license": "Apache-2.0",
-  "displayName": "Continue - open-source AI code agent",
+  "displayName": "NeoCode",
   "pricing": "Free",
-  "description": "The leading open-source AI code agent",
-  "publisher": "Continue",
+  "description": "The leading AI code agent",
+  "publisher": "NeoAI",
   "engines": {
     "vscode": "^1.70.0",
     "node": ">=20.19.0"
@@ -53,7 +53,7 @@
   "activationEvents": [
     "onUri",
     "onStartupFinished",
-    "onView:continueGUIView"
+    "onView:neocode.neocodeGUIView"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -84,299 +84,299 @@
       }
     ],
     "configuration": {
-      "title": "Continue",
+      "title": "NeoCode",
       "properties": {
         "continue.telemetryEnabled": {
           "type": "boolean",
-          "default": true,
-          "markdownDescription": "Continue collects anonymous usage data, cleaned of PII, to help us improve the product for our users. Read more  at [continue.dev › Telemetry](https://docs.continue.dev/telemetry)."
+          "default": false,
+          "markdownDescription": ""
         },
         "continue.showInlineTip": {
           "type": "boolean",
           "default": true,
-          "description": "Show inline suggestion to use the Continue keyboard shortcuts (e.g. \"Cmd/Ctrl L to select code, Cmd/Ctrl I to edit\")."
+          "description": ""
         },
         "continue.disableQuickFix": {
           "type": "boolean",
           "default": false,
-          "description": "Disable the quick fix feature."
+          "description": ""
         },
         "continue.enableQuickActions": {
           "type": "boolean",
           "default": false,
-          "markdownDescription": "Enable the experimental Quick Actions feature. Read our walkthrough to learn about configuration and how to share feedback: [continue.dev › Walkthrough: Quick Actions (experimental)](https://docs.continue.dev/customize/deep-dives/vscode-actions#quick-actions)"
+          "markdownDescription": ""
         },
         "continue.enableTabAutocomplete": {
           "type": "boolean",
           "default": true,
-          "markdownDescription": "Enable Continue's tab autocomplete feature. Read our walkthrough to learn about configuration and how to share feedback: [continue.dev › Walkthrough: Tab Autocomplete (beta)](https://docs.continue.dev/features/tab-autocomplete)"
+          "markdownDescription": ""
         },
         "continue.enableNextEdit": {
           "type": "boolean",
           "default": true,
-          "markdownDescription": "Enable Continue's next edit feature. Read our docs to learn about configuration and how to share feedback: [continue.dev › Features › Autocomplete › Next Edit (experimental)](https://docs.continue.dev/features/autocomplete/next-edit)"
+          "markdownDescription": ""
         },
         "continue.pauseTabAutocompleteOnBattery": {
           "type": "boolean",
           "default": false,
-          "markdownDescription": "Pause Continue's tab autocomplete feature when your battery is low."
+          "markdownDescription": ""
         },
         "continue.pauseCodebaseIndexOnStart": {
           "type": "boolean",
           "default": false,
-          "markdownDescription": "Pause Continue's codebase index on start."
+          "markdownDescription": ""
         },
         "continue.enableConsole": {
           "type": "boolean",
           "default": false,
-          "markdownDescription": "Enable a console to log and explore model inputs and outputs. It can be found in the bottom panel."
+          "markdownDescription": ""
         },
         "continue.remoteConfigServerUrl": {
           "type": "string",
           "default": null,
-          "markdownDescription": "If your team is set up to use shared configuration, enter the server URL here and your user token below to enable automatic syncing."
+          "markdownDescription": ""
         },
         "continue.userToken": {
           "type": "string",
           "default": null,
-          "markdownDescription": "If your team is set up to use shared configuration, enter your user token here and your server URL above to enable automatic syncing."
+          "markdownDescription": ""
         },
         "continue.remoteConfigSyncPeriod": {
           "type": "number",
           "default": 60,
-          "description": "The period of time in minutes between automatic syncs."
+          "description": ""
         }
       }
     },
     "commands": [
       {
         "command": "continue.applyCodeFromChat",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Apply code from chat",
         "group": "Continue"
       },
       {
         "command": "continue.acceptDiff",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Accept Diff",
         "group": "Continue"
       },
       {
         "command": "continue.rejectDiff",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Reject Diff",
         "group": "Continue",
         "icon": "$(stop)"
       },
       {
         "command": "continue.acceptVerticalDiffBlock",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Accept Vertical Diff Block",
         "group": "Continue"
       },
       {
         "command": "continue.rejectVerticalDiffBlock",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Reject Vertical Diff Block",
         "group": "Continue"
       },
       {
         "command": "continue.focusEdit",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Add to Edit",
         "group": "Continue"
       },
       {
         "command": "continue.focusContinueInput",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Add Highlighted Code to Context and Clear Chat",
         "group": "Continue"
       },
       {
         "command": "continue.focusContinueInputWithoutClear",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Add to Chat",
         "group": "Continue"
       },
       {
         "command": "continue.debugTerminal",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Debug Terminal",
         "group": "Continue"
       },
       {
         "command": "continue.exitEditMode",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Exit Edit Mode",
         "group": "Continue"
       },
       {
         "command": "continue.openConfigPage",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Open Settings",
         "icon": "$(gear)",
         "group": "Continue"
       },
       {
         "command": "continue.toggleTabAutocompleteEnabled",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Toggle Autocomplete Enabled",
         "group": "Continue"
       },
       {
         "command": "continue.forceAutocomplete",
-        "title": "Continue: Force Autocomplete",
-        "category": "Continue"
+        "title": "NeoCode: Force Autocomplete",
+        "category": "NeoCode"
       },
       {
         "command": "continue.selectFilesAsContext",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Select Files as Context",
         "group": "Continue"
       },
       {
         "command": "continue.newSession",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "New Session",
         "icon": "$(add)",
         "group": "Continue"
       },
       {
         "command": "continue.shareSession",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Share Current Chat Session as Markdown",
         "group": "Continue"
       },
       {
         "command": "continue.viewHistory",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "View History",
         "icon": "$(history)",
         "group": "Continue"
       },
       {
         "command": "continue.viewLogs",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "View History",
         "group": "Continue"
       },
       {
         "command": "continue.clearConsole",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Clear Console",
         "icon": "$(clear-all)",
         "group": "Continue"
       },
       {
         "command": "continue.navigateTo",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Navigate to a path",
         "group": "Continue"
       },
       {
         "command": "continue.writeCommentsForCode",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Write Comments for this Code",
         "group": "Continue"
       },
       {
         "command": "continue.writeDocstringForCode",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Write a Docstring for this Code",
         "group": "Continue"
       },
       {
         "command": "continue.fixCode",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Fix this Code",
         "group": "Continue"
       },
       {
         "command": "continue.optimizeCode",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Optimize this Code",
         "group": "Continue"
       },
       {
         "command": "continue.fixGrammar",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Fix Grammar / Spelling",
         "group": "Continue"
       },
       {
         "command": "continue.codebaseForceReIndex",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Codebase Force Re-Index",
         "group": "Continue"
       },
       {
         "command": "continue.rebuildCodebaseIndex",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Rebuild codebase index",
         "group": "Continue"
       },
       {
         "command": "continue.docsIndex",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Docs Index",
         "group": "Continue"
       },
       {
         "command": "continue.docsReIndex",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Docs Force Re-Index",
         "group": "Continue"
       },
       {
         "command": "continue.focusContinueInput",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Focus Continue Chat",
         "group": "Continue"
       },
       {
         "command": "continue.enterEnterpriseLicenseKey",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Enter Enterprise License Key",
         "group": "Continue"
       },
       {
         "command": "continue.toggleNextEditEnabled",
-        "title": "Continue: Toggle Next Edit"
+        "title": "NeoCode: Toggle Next Edit"
       },
       {
         "command": "continue.nextEditWindow.hideNextEditSuggestion",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Hide Next Edit Suggestion"
       },
       {
         "command": "continue.nextEditWindow.acceptNextEditSuggestion",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Accept Next Edit Suggestion"
       },
       {
         "command": "continue.forceNextEdit",
-        "category": "Continue",
-        "title": "Continue: Force Next Edit"
+        "category": "NeoCode",
+        "title": "NeoCode: Force Next Edit"
       },
       {
         "command": "continue.acceptJump",
-        "category": "Continue",
-        "title": "Continue: Accept Jump Suggestion"
+        "category": "NeoCode",
+        "title": "NeoCode: Accept Jump Suggestion"
       },
       {
         "command": "continue.rejectJump",
-        "category": "Continue",
-        "title": "Continue: Reject Jump Suggestion"
+        "category": "NeoCode",
+        "title": "NeoCode: Reject Jump Suggestion"
       },
       {
         "command": "continue.generateRule",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Generate Rule",
         "group": "Continue"
       },
       {
         "command": "continue.openInNewWindow",
-        "category": "Continue",
+        "category": "NeoCode",
         "title": "Open in new window",
         "group": "Continue"
       }
@@ -501,8 +501,8 @@
     ],
     "submenus": [
       {
-        "id": "continue.continueSubMenu",
-        "label": "Continue"
+        "id": "neocode.subMenu",
+        "label": "NeoCode"
       }
     ],
     "menus": {
@@ -531,7 +531,7 @@
       ],
       "editor/context": [
         {
-          "submenu": "continue.continueSubMenu",
+          "submenu": "neocode.subMenu",
           "group": "0_acontinue"
         }
       ],
@@ -540,17 +540,6 @@
           "command": "continue.rejectDiff",
           "group": "Continue",
           "when": "continue.streamingDiff"
-        }
-      ],
-      "continue.continueSubMenu": [
-        {
-          "command": "continue.focusContinueInputWithoutClear",
-          "group": "Continue"
-        },
-        {
-          "command": "continue.focusEdit",
-          "group": "Continue",
-          "when": "!editorReadonly"
         }
       ],
       "explorer/context": [
@@ -563,34 +552,34 @@
         {
           "command": "continue.newSession",
           "group": "navigation@1",
-          "when": "view == continue.continueGUIView"
+          "when": "view == neocode.neocodeGUIView"
         },
         {
           "command": "continue.viewHistory",
           "group": "navigation@2",
-          "when": "view == continue.continueGUIView"
+          "when": "view == neocode.neocodeGUIView"
         },
         {
           "command": "continue.openConfigPage",
           "group": "navigation@4",
-          "when": "view == continue.continueGUIView"
+          "when": "view == neocode.neocodeGUIView"
         },
         {
           "command": "continue.clearConsole",
           "group": "navigation@1",
-          "when": "view == continue.continueConsoleView"
+          "when": "view == neocode.consoleView"
         }
       ],
       "editor/title": [
         {
           "command": "continue.newSession",
           "group": "navigation@1",
-          "when": "activeWebviewPanelId == continue.continueGUIView"
+          "when": "activeWebviewPanelId == neocode.neocodeGUIView"
         },
         {
           "command": "continue.viewHistory",
           "group": "navigation@2",
-          "when": "activeWebviewPanelId == continue.continueGUIView"
+          "when": "activeWebviewPanelId == neocode.neocodeGUIView"
         }
       ],
       "terminal/context": [
@@ -598,42 +587,54 @@
           "command": "continue.debugTerminal",
           "group": "navigation@top"
         }
+      ],
+      "neocode.subMenu": [
+        {
+          "command": "continue.focusContinueInputWithoutClear",
+          "group": "Continue",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "continue.focusEdit",
+          "group": "Continue",
+          "when": "editorHasSelection && !editorReadonly"
+        }
       ]
     },
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "continue",
-          "title": "Continue",
-          "icon": "media/sidebar-icon.png"
+          "id": "neocode",
+          "title": "NeoCode",
+          "icon": "media/icon.png"
         }
       ],
       "panel": [
         {
-          "id": "continueConsole",
-          "title": "Continue Console",
+          "id": "neocodeConsole",
+          "title": "NeoCode Console",
           "icon": "$(window)"
         }
       ]
     },
     "views": {
-      "continue": [
+      "neocode": [
         {
           "type": "webview",
-          "id": "continue.continueGUIView",
-          "name": "Continue",
-          "icon": "media/sidebar-icon.png",
+          "id": "neocode.neocodeGUIView",
+          "name": "NeoCode",
+          "icon": "media/icon.png",
           "visibility": "visible"
         }
       ],
-      "continueConsole": [
+      "neocodeConsole": [
         {
           "type": "webview",
-          "id": "continue.continueConsoleView",
-          "name": "Continue Console",
+          "id": "neocode.consoleView",
+          "name": "NeoCode Console",
           "icon": "$(window)",
           "visibility": "visible",
-          "when": "config.continue.enableConsole"
+          "when": "config.neocode.enableConsole"
         }
       ]
     },

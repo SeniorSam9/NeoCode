@@ -166,12 +166,12 @@ export function getContextProviderDropdownOptions(
       contextProviderMatches.push({
         title: "Add more context providers",
         type: "action",
-        action: () => {
-          ideMessenger.post(
-            "openUrl",
-            "https://docs.continue.dev/customization/context-providers#built-in-context-providers",
-          );
-        },
+        // action: () => {
+        //   ideMessenger.post(
+        //     "openUrl",
+        //     "https://docs.continue.dev/customization/context-providers#built-in-context-providers",
+        //   );
+        // },
         description: "",
       });
       return contextProviderMatches;

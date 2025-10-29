@@ -55,7 +55,7 @@ let fullScreenPanel: vscode.WebviewPanel | undefined;
 function getFullScreenTab() {
   const tabs = vscode.window.tabGroups.all.flatMap((tabGroup) => tabGroup.tabs);
   return tabs.find((tab) =>
-    (tab.input as any)?.viewType?.endsWith("continue.continueGUIView"),
+    (tab.input as any)?.viewType?.endsWith("neocode.neocodeGUIView"),
   );
 }
 
@@ -78,8 +78,7 @@ function focusGUI() {
     fullScreenPanel?.reveal();
   } else {
     // focus sidebar
-    vscode.commands.executeCommand("continue.continueGUIView.focus");
-    // vscode.commands.executeCommand("workbench.action.focusAuxiliaryBar");
+    vscode.commands.executeCommand("neocode.neocodeGUIView.focus"); // vscode.commands.executeCommand("workbench.action.focusAuxiliaryBar");
   }
 }
 
@@ -226,7 +225,7 @@ const getCommandsMap: (
 
       addCodeToContextFromRange(range, sidebar.webviewProtocol, prompt);
 
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("neocode.neocodeGUIView.focus");
     },
     // Passthrough for telemetry purposes
     "continue.defaultQuickAction": async (args: QuickEditShowParams) => {
@@ -241,7 +240,7 @@ const getCommandsMap: (
 
       addCodeToContextFromRange(range, sidebar.webviewProtocol, prompt);
 
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("neocode.neocodeGUIView.focus");
     },
     "continue.customQuickActionStreamInlineEdit": async (
       prompt: string,
@@ -365,7 +364,6 @@ const getCommandsMap: (
     },
     "continue.writeDocstringForCode": async () => {
       captureCommandTelemetry("writeDocstringForCode");
-
       void streamInlineEdit(
         "docstring",
         "Write a docstring for this code. Do not change anything about the code itself.",
@@ -402,7 +400,7 @@ const getCommandsMap: (
 
       const terminalContents = await ide.getTerminalContents();
 
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("neocode.neocodeGUIView.focus");
 
       sidebar.webviewProtocol?.request("userInput", {
         input: `I got the following error, can you please help explain how to fix it?\n\n${terminalContents.trim()}`,
@@ -418,7 +416,7 @@ const getCommandsMap: (
     "continue.addModel": () => {
       captureCommandTelemetry("addModel");
 
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
+      vscode.commands.executeCommand("neocode.neocodeGUIView.focus");
       sidebar.webviewProtocol?.request("addModel", undefined);
     },
     "continue.newSession": () => {
@@ -490,8 +488,7 @@ const getCommandsMap: (
         throw new Error("No files were selected");
       }
 
-      vscode.commands.executeCommand("continue.continueGUIView.focus");
-
+      vscode.commands.executeCommand("neocode.neocodeGUIView.focus");
       for (const uri of uris) {
         // If it's a folder, add the entire folder contents recursively by using walkDir (to ignore ignored files)
         const isDirectory = await vscode.workspace.fs
@@ -827,7 +824,7 @@ const getCommandsMap: (
 
       // Create the full screen panel
       let panel = vscode.window.createWebviewPanel(
-        "continue.continueGUIView",
+        "neocode.neocodeGUIView",
         "Continue",
         vscode.ViewColumn.One,
         {

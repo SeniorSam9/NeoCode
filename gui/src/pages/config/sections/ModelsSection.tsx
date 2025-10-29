@@ -11,7 +11,6 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setDialogMessage, setShowDialog } from "../../../redux/slices/uiSlice";
 import { updateSelectedModelByRole } from "../../../redux/thunks/updateSelectedModelByRole";
 import { getMetaKeyLabel, isJetBrains } from "../../../util";
-import { ConfigHeader } from "../components/ConfigHeader";
 import { ModelRoleRow } from "../components/ModelRoleRow";
 
 export function ModelsSection() {
@@ -64,11 +63,11 @@ export function ModelsSection() {
 
   return (
     <div className="space-y-4">
-      <ConfigHeader
+      {/* <ConfigHeader
         title="Models"
         onAddClick={handleAddModel}
         addButtonTooltip="Add model"
-      />
+      /> */}
 
       <Card>
         <ModelRoleRow

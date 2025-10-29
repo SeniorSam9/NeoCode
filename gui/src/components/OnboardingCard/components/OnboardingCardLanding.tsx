@@ -32,7 +32,7 @@ export function OnboardingCardLanding({
         void dispatch(selectFirstHubProfile());
 
         ideMessenger.post("showTutorial", undefined);
-        ideMessenger.post("showToast", ["info", "🎉 Welcome to Continue!"]);
+        ideMessenger.post("showToast", ["info", "🎉 Welcome to NeoCode!"]);
       }
     });
   }
@@ -58,7 +58,7 @@ export function OnboardingCardLanding({
   return (
     <div className="xs:px-0 flex w-full max-w-full flex-col items-center justify-center px-4 text-center">
       <div className="xs:flex hidden">
-        <ContinueLogo height={75} />
+        <ContinueLogo />
       </div>
 
       {outOfStarterCredits ? (

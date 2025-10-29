@@ -1,15 +1,15 @@
 import { BuiltInToolNames } from "core/tools/builtIn";
 import { generateToolCallButtonTestId } from "../../../components/mainInput/Lump/LumpToolbar/PendingToolCallToolbar";
-import { triggerConfigUpdate } from "../../../util/test/config";
 import { updateConfig } from "../../../redux/slices/configSlice";
+import { triggerConfigUpdate } from "../../../util/test/config";
 import { renderWithProviders } from "../../../util/test/render";
 import { Chat } from "../Chat";
 
 import { waitFor } from "@testing-library/dom";
 import { act } from "@testing-library/react";
 import { ChatMessage } from "core";
-import { setToolPolicy } from "../../../redux/slices/uiSlice";
 import { setInactive } from "../../../redux/slices/sessionSlice";
+import { setToolPolicy } from "../../../redux/slices/uiSlice";
 import {
   getElementByTestId,
   getElementByText,
@@ -56,7 +56,7 @@ beforeEach(async () => {
   await new Promise((resolve) => setTimeout(resolve, 50));
 });
 
-test("Edit run with no policy and yolo mode", { timeout: 15000 }, async () => {
+test("Edit run with no policy and yolo mode", async () => {
   // Additional cleanup before test starts
   localStorage.clear();
   sessionStorage.clear();
