@@ -3,6 +3,7 @@ import { useAppSelector } from "../../redux/hooks";
 import { getLocalStorage, setLocalStorage } from "../../util/localStorage";
 import Alert from "../gui/Alert";
 import { ReusableCard } from "../ReusableCard";
+import { OnboardingCardLanding } from "./components/OnboardingCardLanding";
 import { OnboardingCardTabs } from "./components/OnboardingCardTabs";
 import { OnboardingLocalTab } from "./components/OnboardingLocalTab";
 import { OnboardingModelsAddOnTab } from "./components/OnboardingModelsAddOnTab";
@@ -79,10 +80,10 @@ export function OnboardingCard({
       onClose={close}
     >
       <div className="flex h-full w-full items-center justify-center">
-        {/* <OnboardingCardLanding
+        <OnboardingCardLanding
           onSelectConfigure={() => setActiveTab(OnboardingModes.API_KEY)}
           isDialog={isDialog}
-        /> */}
+        />
       </div>
     </ReusableCard>
   );

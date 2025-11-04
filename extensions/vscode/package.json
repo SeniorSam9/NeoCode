@@ -2,11 +2,7 @@
   "name": "neocode",
   "icon": "media/icon.png",
   "author": "NeoAI",
-  "version": "1.3.23",
-  "repository": {
-    "type": "",
-    "url": ""
-  },
+  "version": "1.0.0",
   "extensionKind": [
     "ui",
     "workspace"
