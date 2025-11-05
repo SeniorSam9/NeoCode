@@ -1,14 +1,11 @@
 import {
   ArrowRightStartOnRectangleIcon,
   Cog6ToothIcon,
-  UserCircleIcon as UserCircleIconOutline,
 } from "@heroicons/react/24/outline";
 import { UserCircleIcon as UserCircleIconSolid } from "@heroicons/react/24/solid";
 import { isOnPremSession } from "core/control-plane/AuthTypes";
 import { useContext } from "react";
-import { ToolTip } from "../../../../components/gui/Tooltip";
 import {
-  Button,
   Listbox,
   ListboxButton,
   ListboxOption,
@@ -28,18 +25,19 @@ export function AccountDropdown() {
 
   if (!session) {
     return (
-      <ToolTip content="Log in" className="text-xs md:!hidden">
-        <Button
-          variant="ghost"
-          className="text-description flex w-full flex-row items-center gap-2 px-2 py-1.5"
-          onClick={() => login(false)}
-        >
-          <UserCircleIconOutline className="xs:h-4 xs:w-4 h-3 w-3 flex-shrink-0" />
-          <span className="text-description hidden text-xs md:block">
-            Log in
-          </span>
-        </Button>
-      </ToolTip>
+      // <ToolTip content="Log in" className="text-xs md:!hidden">
+      //   <Button
+      //     variant="ghost"
+      //     className="text-description flex w-full flex-row items-center gap-2 px-2 py-1.5"
+      //     onClick={() => login(false)}
+      //   >
+      //     <UserCircleIconOutline className="xs:h-4 xs:w-4 h-3 w-3 flex-shrink-0" />
+      //     <span className="text-description hidden text-xs md:block">
+      //       Log in
+      //     </span>
+      //   </Button>
+      // </ToolTip>
+      <></>
     );
   }
 

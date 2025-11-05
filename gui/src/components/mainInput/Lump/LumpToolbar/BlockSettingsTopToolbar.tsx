@@ -1,4 +1,5 @@
 import {
+  CubeIcon,
   ExclamationTriangleIcon,
   GiftIcon,
   PencilIcon,
@@ -125,11 +126,11 @@ export function BlockSettingsTopToolbar() {
               </HoverItem>
             </ToolTip>
 
-            {/* <ToolTip content="Configure models">
+            <ToolTip content="Configure models">
               <HoverItem onClick={handleModelsClick} px={2}>
                 <CubeIcon className="text-description-muted h-3 w-3 hover:brightness-125" />
               </HoverItem>
-            </ToolTip> */}
+            </ToolTip>
           </div>
         )}
       </div>

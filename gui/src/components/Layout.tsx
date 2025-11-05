@@ -6,6 +6,7 @@ import { CustomScrollbarDiv } from ".";
 import { AuthProvider } from "../context/Auth";
 import { IdeMessengerContext } from "../context/IdeMessenger";
 import { LocalStorageProvider } from "../context/LocalStorage";
+import AddModelForm from "../forms/AddModelForm";
 import TelemetryProviders from "../hooks/TelemetryProviders";
 import { useWebviewListener } from "../hooks/useWebviewListener";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
@@ -19,11 +20,7 @@ import { FatalErrorIndicator } from "./config/FatalErrorNotice";
 import TextDialog from "./dialogs";
 import { GenerateRuleDialog } from "./GenerateRuleDialog";
 import { useMainEditor } from "./mainInput/TipTapEditor";
-import {
-  isNewUserOnboarding,
-  OnboardingCard,
-  useOnboardingCard,
-} from "./OnboardingCard";
+import { useOnboardingCard } from "./OnboardingCard";
 import OSRContextMenu from "./OSRContextMenu";
 import PostHogPageView from "./PosthogPageView";
 
@@ -42,6 +39,7 @@ const GridDiv = styled.div`
 
 const Layout = () => {
   const [showStagingIndicator, setShowStagingIndicator] = useState(false);
+  const [showAddModelForm, setShowAddModelForm] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
@@ -53,9 +51,21 @@ const Layout = () => {
 
   const showDialog = useAppSelector((state) => state.ui.showDialog);
   const isInEdit = useAppSelector((store) => store.session.isInEdit);
-  const isHome =
-    location.pathname === ROUTES.HOME ||
-    location.pathname === ROUTES.HOME_INDEX;
+
+  // useEffect(() => {
+  //   const modelConfigured = getLocalStorage("modelConfigured");
+  //   if (modelConfigured === undefined) {
+  //     setLocalStorage("modelConfigured", false);
+  //     setShowAddModelForm(true);
+  //   } else if (modelConfigured === false) {
+  //     setShowAddModelForm(true);
+  //   }
+  // }, []);
+
+  // const handleModelConfigured = () => {
+  //   setLocalStorage("modelConfigured", true);
+  //   setShowAddModelForm(false);
+  // };
 
   useEffect(() => {
     (async () => {
@@ -91,8 +101,8 @@ const Layout = () => {
     async () => {
       return false;
     },
-    [isHome],
-    isHome,
+    [location.pathname],
+    location.pathname === ROUTES.HOME,
   );
 
   useWebviewListener(
@@ -114,8 +124,8 @@ const Layout = () => {
         );
       }
     },
-    [isHome, isInEdit],
-    isHome,
+    [location.pathname, isInEdit],
+    location.pathname === ROUTES.HOME,
   );
 
   useWebviewListener(
@@ -138,26 +148,18 @@ const Layout = () => {
     [location, navigate],
   );
 
+  // useWebviewListener(
+  //   "incrementFtc",
+  //   async () => {
+  //     incrementFreeTrialCount();
+  //   },
+  //   [],
+  // );
+
   useWebviewListener(
     "setupLocalConfig",
     async () => {
       onboardingCard.open(OnboardingModes.LOCAL);
-    },
-    [],
-  );
-
-  useWebviewListener(
-    "freeTrialExceeded",
-    async () => {
-      dispatch(setShowDialog(true));
-      onboardingCard.setActiveTab(OnboardingModes.MODELS_ADD_ON);
-      dispatch(
-        setDialogMessage(
-          <div className="flex-1">
-            <OnboardingCard isDialog showFreeTrialExceededAlert />
-          </div>,
-        ),
-      );
     },
     [],
   );
@@ -228,11 +230,21 @@ const Layout = () => {
     };
   }, []);
 
+  // useEffect(() => {
+  //   if (
+  //     isNewUserOnboarding() &&
+  //     (location.pathname === "/" || location.pathname === "/index.html")
+  //   ) {
+  //     onboardingCard.open();
+  //   }
+  // }, [location]);
   useEffect(() => {
-    if (isNewUserOnboarding() && isHome) {
-      onboardingCard.open();
-    }
-  }, [isHome]);
+    // const modelConfigured = localStorage.getItem("modelConfigured");
+    // if (modelConfigured === null || modelConfigured === "false") {
+
+    // }
+    setShowAddModelForm(true);
+  }, []);
 
   return (
     <LocalStorageProvider>
@@ -248,6 +260,7 @@ const Layout = () => {
                 }}
               />
             )}
+
             <OSRContextMenu />
             <div
               style={{
@@ -255,8 +268,15 @@ const Layout = () => {
                 minHeight: "100%",
                 display: "grid",
                 gridTemplateRows: "1fr auto",
+                filter: showAddModelForm ? "blur(6px)" : "none",
+                pointerEvents: showAddModelForm ? "none" : "auto",
+                transition: "filter 0.2s",
               }}
             >
+              <div className="flex flex-col items-center justify-center">
+                <h1>NeoCode</h1>
+                <h4>The Leading NeoAI Coding Agent</h4>
+              </div>
               <TextDialog
                 showDialog={showDialog}
                 onEnter={() => {
@@ -267,14 +287,41 @@ const Layout = () => {
                 }}
                 message={dialogMessage}
               />
-
-              <GridDiv>
-                <PostHogPageView />
-                <Outlet />
-                {/* The fatal error for chat is shown below input */}
-                {!isHome && <FatalErrorIndicator />}
-              </GridDiv>
+              <PostHogPageView />
+              <Outlet />
+              <FatalErrorIndicator />
             </div>
+            {showAddModelForm && (
+              <div
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  width: "100vw",
+                  height: "100vh",
+                  zIndex: 9999,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "rgba(30, 30, 30, 0.4)", // semi-transparent overlay
+                }}
+              >
+                <div
+                  className="w-full max-w-xl"
+                  style={{
+                    width: "600px", // Increased width
+                    maxWidth: "90vw",
+                  }}
+                >
+                  <AddModelForm
+                    onDone={() => {
+                      localStorage.setItem("modelConfigured", "true");
+                      setShowAddModelForm(false);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
             <div style={{ fontSize: fontSize(-4) }} id="tooltip-portal-div" />
           </LayoutTopDiv>
         </TelemetryProviders>

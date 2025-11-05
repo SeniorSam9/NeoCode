@@ -1,17 +1,9 @@
-import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { Button, Input, StyledActionButton } from "../components";
-import Alert from "../components/gui/Alert";
+import { Button, Input } from "../components";
 import ModelSelectionListbox from "../components/modelSelection/ModelSelectionListbox";
 import { useAuth } from "../context/Auth";
 import { IdeMessengerContext } from "../context/IdeMessenger";
-import { completionParamsInputs } from "../pages/AddNewModel/configs/completionParamsInputs";
-import { DisplayInfo } from "../pages/AddNewModel/configs/models";
-import {
-  ProviderInfo,
-  providers,
-} from "../pages/AddNewModel/configs/providers";
 import { useAppDispatch } from "../redux/hooks";
 import { updateSelectedModelByRole } from "../redux/thunks/updateSelectedModelByRole";
 
@@ -20,91 +12,182 @@ interface AddModelFormProps {
   hideFreeTrialLimitMessage?: boolean;
 }
 
-const MODEL_PROVIDERS_URL =
-  "https://docs.continue.dev/customize/model-providers";
-const CODESTRAL_URL = "https://console.mistral.ai/codestral";
-const CONTINUE_SETUP_URL = "https://docs.continue.dev/setup/overview";
+interface Model {
+  id: string;
+  title: string;
+  object?: string;
+  created?: number;
+  owned_by?: string;
+}
 
 export function AddModelForm({
   onDone,
   hideFreeTrialLimitMessage,
 }: AddModelFormProps) {
-  const [selectedProvider, setSelectedProvider] = useState<ProviderInfo>(
-    providers["openai"]!,
-  );
   const dispatch = useAppDispatch();
   const { selectedProfile } = useAuth();
-  const [selectedModel, setSelectedModel] = useState(
-    selectedProvider.packages[0],
-  );
   const formMethods = useForm();
   const ideMessenger = useContext(IdeMessengerContext);
 
-  const popularProviderTitles = [
-    providers["openai"]?.title || "",
-    providers["anthropic"]?.title || "",
-    providers["mistral"]?.title || "",
-    providers["gemini"]?.title || "",
-    providers["azure"]?.title || "",
-    providers["ollama"]?.title || "",
-  ];
+  // Two-step process state
+  const [step, setStep] = useState<"connect" | "selectModel">("connect");
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [availableModels, setAvailableModels] = useState<Model[]>([]);
+  const [selectedCustomModel, setSelectedCustomModel] = useState<Model | null>(
+    null,
+  );
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
-  const allProviders = Object.entries(providers)
-    .filter(([key]) => !["openai-aiohttp"].includes(key))
-    .map(([, provider]) => provider)
-    .filter((provider) => !!provider)
-    .map((provider) => provider!); // for type checking
+  async function fetchModels() {
+    const apiBase = formMethods.watch("apiBase");
+    const apiKey = formMethods.watch("apiKey");
 
-  const popularProviders = allProviders
-    .filter((provider) => popularProviderTitles.includes(provider.title))
-    .sort((a, b) => a.title.localeCompare(b.title));
-
-  const otherProviders = allProviders
-    .filter((provider) => !popularProviderTitles.includes(provider.title))
-    .sort((a, b) => a.title.localeCompare(b.title));
-
-  const selectedProviderApiKeyUrl = selectedModel.params.model.startsWith(
-    "codestral",
-  )
-    ? CODESTRAL_URL
-    : selectedProvider.apiKeyUrl;
-
-  function isDisabled() {
-    if (selectedProvider.downloadUrl) {
-      return false;
+    if (!apiBase) {
+      setConnectionError("Please enter API base URL");
+      return;
     }
 
-    const required = selectedProvider.collectInputFor
-      ?.filter((input) => input.required)
-      .map((input) => {
-        const value = formMethods.watch(input.key);
-        return value;
+    setIsConnecting(true);
+    setConnectionError(null);
+
+    try {
+      // Detect if this is Ollama based on the URL or try both endpoints
+      const isOllama =
+        apiBase.includes("11434") || apiBase.toLowerCase().includes("ollama");
+
+      let modelsUrl: string;
+      let headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      if (isOllama) {
+        // Ollama uses /api/tags endpoint and doesn't require authentication
+        modelsUrl = apiBase.endsWith("/")
+          ? `${apiBase}api/tags`
+          : `${apiBase}/api/tags`;
+      } else {
+        // OpenAI-compatible endpoints use /models and require API key
+        if (!apiKey) {
+          setConnectionError("Please enter API key for this provider");
+          return;
+        }
+        modelsUrl = apiBase.endsWith("/")
+          ? `${apiBase}models`
+          : `${apiBase}/models`;
+        headers.Authorization = `Bearer ${apiKey}`;
+      }
+
+      const response = await fetch(modelsUrl, {
+        method: "GET",
+        headers,
       });
 
-    return !required?.every((value) => value !== undefined && value.length > 0);
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch models: ${response.status} ${response.statusText}`,
+        );
+      }
+
+      const data = await response.json();
+      let models: Model[] = [];
+
+      if (isOllama && data.models && Array.isArray(data.models)) {
+        // Ollama response format
+        models = data.models.map((model: any) => ({
+          id: model.name,
+          title: model.name,
+          object: "model",
+          created: model.modified_at
+            ? new Date(model.modified_at).getTime() / 1000
+            : undefined,
+          owned_by: "ollama",
+        }));
+      } else if (data.data && Array.isArray(data.data)) {
+        // OpenAI-compatible response format
+        models = data.data.map((model: any) => ({
+          id: model.id,
+          title: model.id,
+          object: model.object,
+          created: model.created,
+          owned_by: model.owned_by,
+        }));
+      } else {
+        throw new Error("Invalid response format: no models found");
+      }
+
+      setAvailableModels(models);
+      setStep("selectModel");
+
+      // Pre-select the first model if available
+      if (models.length > 0) {
+        setSelectedCustomModel(models[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching models:", error);
+      setConnectionError(
+        error instanceof Error ? error.message : "Failed to connect to the API",
+      );
+    } finally {
+      setIsConnecting(false);
+    }
   }
 
-  useEffect(() => {
-    setSelectedModel(selectedProvider.packages[0]);
-  }, [selectedProvider]);
+  function isConnectDisabled() {
+    const apiBase = formMethods.watch("apiBase");
+    const apiKey = formMethods.watch("apiKey");
+    const hasValidApiBase = apiBase !== undefined && apiBase.length > 0;
+
+    // Check if this is Ollama (doesn't require API key)
+    const isOllama =
+      apiBase &&
+      (apiBase.includes("11434") || apiBase.toLowerCase().includes("ollama"));
+    const hasValidApiKey = apiKey !== undefined && apiKey.length > 0;
+
+    if (isOllama) {
+      return !hasValidApiBase || isConnecting;
+    } else {
+      return !hasValidApiBase || !hasValidApiKey || isConnecting;
+    }
+  }
+
+  function isSubmitDisabled() {
+    return !selectedCustomModel;
+  }
 
   function onSubmit() {
-    const apiKey = formMethods.watch("apiKey");
-    const hasValidApiKey = apiKey !== undefined && apiKey !== "";
-
-    const reqInputFields: Record<string, any> = {};
-    for (let input of selectedProvider.collectInputFor ?? []) {
-      reqInputFields[input.key] = formMethods.watch(input.key);
+    if (step === "connect") {
+      // Handle the connect step
+      fetchModels();
+      return;
     }
 
-    const model = {
-      ...selectedProvider.params,
-      ...selectedModel.params,
-      ...reqInputFields,
-      provider: selectedProvider.provider,
-      title: selectedModel.title,
-      ...(hasValidApiKey ? { apiKey } : {}),
+    // Handle the final submission
+    if (!selectedCustomModel) return;
+
+    const apiKey = formMethods.watch("apiKey");
+    const apiBase = formMethods.watch("apiBase");
+
+    // Detect if this is Ollama
+    const isOllama =
+      apiBase &&
+      (apiBase.includes("11434") || apiBase.toLowerCase().includes("ollama"));
+
+    const model: any = {
+      provider: isOllama ? "ollama" : "openai",
+      title: selectedCustomModel.title,
+      model: selectedCustomModel.id,
+      underlyingProviderName: isOllama ? "ollama" : "custom",
     };
+
+    // Add API key and base URL only if not Ollama
+    if (isOllama) {
+      // For Ollama, we might need to set the base URL without /api/tags
+      const cleanApiBase = apiBase.replace(/\/api\/tags\/?$/, "");
+      model.apiBase = cleanApiBase;
+    } else {
+      model.apiKey = apiKey;
+      model.apiBase = apiBase;
+    }
 
     ideMessenger.post("config/addModel", { model });
 
@@ -123,178 +206,194 @@ export function AddModelForm({
     onDone();
   }
 
-  function onClickDownloadProvider() {
-    selectedProvider.downloadUrl &&
-      ideMessenger.post("openUrl", selectedProvider.downloadUrl);
+  function goBackToConnect() {
+    setStep("connect");
+    setAvailableModels([]);
+    setSelectedCustomModel(null);
+    setConnectionError(null);
   }
 
   return (
     <FormProvider {...formMethods}>
       <form onSubmit={formMethods.handleSubmit(onSubmit)}>
         <div className="mx-auto max-w-md p-6">
-          <h1 className="mb-0 text-center text-2xl">Add Chat model</h1>
+          <h1 className="mb-0 text-center text-2xl">
+            {step === "connect" ? "Connect to Provider" : "Select Model"}
+          </h1>
 
           <div className="my-8 flex flex-col gap-6">
-            <div>
-              <label className="block text-sm font-medium">Provider</label>
-              <ModelSelectionListbox
-                selectedProvider={selectedProvider}
-                setSelectedProvider={(val: DisplayInfo) => {
-                  const match = [...popularProviders, ...otherProviders].find(
-                    (provider) => provider.title === val.title,
-                  );
-                  if (match) {
-                    setSelectedProvider(match);
-                  }
-                }}
-                topOptions={popularProviders}
-                otherOptions={otherProviders}
-              />
-              <span className="text-description-muted mt-1 block text-xs">
-                Don't see your provider?{" "}
-                <a
-                  className="cursor-pointer text-inherit underline hover:text-inherit"
-                  onClick={() =>
-                    ideMessenger.post("openUrl", MODEL_PROVIDERS_URL)
-                  }
-                >
-                  Click here
-                </a>{" "}
-                to view the full list
-              </span>
-            </div>
+            {step === "connect" && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium">
+                    API Base URL
+                  </label>
+                  <Input
+                    id="apiBase"
+                    className="w-full"
+                    type="text"
+                    placeholder="Enter your provider's API base URL (e.g., http://localhost:11434 for Ollama)"
+                    {...formMethods.register("apiBase", { required: true })}
+                  />
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        formMethods.setValue(
+                          "apiBase",
+                          "http://localhost:11434",
+                        )
+                      }
+                      className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800 hover:bg-blue-200"
+                    >
+                      Use Ollama (localhost:11434)
+                    </button>
+                  </div>
+                  <span className="text-description-muted mt-1 block text-xs">
+                    Enter the base URL for your AI provider (Ollama:
+                    http://localhost:11434, OpenAI: https://api.openai.com/v1)
+                  </span>
+                </div>
 
-            {selectedProvider.downloadUrl && (
-              <div>
-                <label className="mb-1 block text-sm font-medium">
-                  Install provider
-                </label>
-                <StyledActionButton onClick={onClickDownloadProvider}>
-                  <p className="text-sm underline">
-                    {selectedProvider.downloadUrl}
-                  </p>
-                  <ArrowTopRightOnSquareIcon width={24} height={24} />
-                </StyledActionButton>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium">Model</label>
-              <ModelSelectionListbox
-                selectedProvider={selectedModel}
-                setSelectedProvider={(val: DisplayInfo) => {
-                  const options =
-                    Object.entries(providers).find(
-                      ([, provider]) =>
-                        provider?.title === selectedProvider.title,
-                    )?.[1]?.packages ?? [];
-                  const match = options.find(
-                    (option) => option.title === val.title,
-                  );
-                  if (match) {
-                    setSelectedModel(match);
-                  }
-                }}
-                topOptions={
-                  Object.entries(providers).find(
-                    ([, provider]) =>
-                      provider?.title === selectedProvider.title,
-                  )?.[1]?.packages
-                }
-              />
-            </div>
-
-            {selectedModel.params.model.startsWith("codestral") && (
-              <div className="my-2">
-                <Alert>
-                  <p className="m-0 text-sm font-bold">Codestral API key</p>
-                  <p className="m-0 mt-1">
-                    Note that codestral requires a different API key from other
-                    Mistral models
-                  </p>
-                </Alert>
-              </div>
-            )}
-
-            {selectedProvider.apiKeyUrl && (
-              <div>
-                <>
+                <div>
                   <label className="mb-1 block text-sm font-medium">
-                    API key
+                    API Key{" "}
+                    {formMethods.watch("apiBase")?.includes("11434") ||
+                    formMethods
+                      .watch("apiBase")
+                      ?.toLowerCase()
+                      .includes("ollama")
+                      ? "(Optional for Ollama)"
+                      : ""}
                   </label>
                   <Input
                     id="apiKey"
                     className="w-full"
                     type="password"
-                    placeholder={`Enter your ${selectedProvider.title} API key`}
+                    placeholder={
+                      formMethods.watch("apiBase")?.includes("11434") ||
+                      formMethods
+                        .watch("apiBase")
+                        ?.toLowerCase()
+                        .includes("ollama")
+                        ? "Not required for Ollama"
+                        : "Enter your API key"
+                    }
                     {...formMethods.register("apiKey")}
                   />
                   <span className="text-description-muted mt-1 block text-xs">
-                    <a
-                      className="cursor-pointer text-inherit underline hover:text-inherit hover:brightness-125"
-                      onClick={() => {
-                        if (selectedProviderApiKeyUrl) {
-                          ideMessenger.post(
-                            "openUrl",
-                            selectedProviderApiKeyUrl,
-                          );
-                        }
-                      }}
-                    >
-                      Click here
-                    </a>{" "}
-                    to create a {selectedProvider.title} API key
+                    {formMethods.watch("apiBase")?.includes("11434") ||
+                    formMethods
+                      .watch("apiBase")
+                      ?.toLowerCase()
+                      .includes("ollama")
+                      ? "Ollama runs locally and doesn't require an API key"
+                      : "Enter the API key required for your AI provider"}
                   </span>
-                </>
-              </div>
+                </div>
+
+                {connectionError && (
+                  <div className="rounded-md bg-red-50 p-4">
+                    <div className="flex">
+                      <div className="ml-3">
+                        <h3 className="text-sm font-medium text-red-800">
+                          Connection Error
+                        </h3>
+                        <div className="mt-2 text-sm text-red-700">
+                          <p>{connectionError}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
-            {selectedProvider.collectInputFor &&
-              selectedProvider.collectInputFor
-                .filter(
-                  (field) =>
-                    !Object.values(completionParamsInputs).some(
-                      (input) => input.key === field.key,
-                    ) &&
-                    field.required &&
-                    field.key !== "apiKey",
-                )
-                .map((field) => (
-                  <div key={field.key}>
-                    <>
-                      <label className="mb-1 block text-sm font-medium">
-                        {field.label}
-                      </label>
-                      <Input
-                        id={field.key}
-                        className="w-full"
-                        defaultValue={field.defaultValue}
-                        placeholder={`${field.placeholder}`}
-                        {...formMethods.register(field.key)}
-                      />
-                    </>
+            {step === "selectModel" && (
+              <>
+                <div className="rounded-md bg-green-50 p-4">
+                  <div className="flex">
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-green-800">
+                        Connected Successfully!
+                      </h3>
+                      <div className="mt-2 text-sm text-green-700">
+                        <p>
+                          Found {availableModels.length} available models.
+                          Select one below:
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">
+                    Available Models
+                  </label>
+                  <ModelSelectionListbox
+                    selectedProvider={
+                      selectedCustomModel || { title: "Select a model", id: "" }
+                    }
+                    setSelectedProvider={(val: any) => {
+                      const match = availableModels.find(
+                        (model) =>
+                          model.id === val.id || model.title === val.title,
+                      );
+                      if (match) {
+                        setSelectedCustomModel(match);
+                      }
+                    }}
+                    topOptions={availableModels}
+                  />
+                  <span className="text-description-muted mt-1 block text-xs">
+                    Choose the model you want to use for chat
+                  </span>
+                </div>
+
+                <div className="mt-4">
+                  <Button
+                    type="button"
+                    onClick={goBackToConnect}
+                    className="mb-2 w-full bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  >
+                    ← Back to Connection
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="mt-4 w-full">
-            <Button type="submit" className="w-full" disabled={isDisabled()}>
-              Connect
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={
+                step === "connect" ? isConnectDisabled() : isSubmitDisabled()
+              }
+            >
+              {step === "connect"
+                ? isConnecting
+                  ? "Connecting..."
+                  : "Connect"
+                : "Add Model"}
             </Button>
 
-            <span className="text-description-muted block w-full text-center text-xs">
-              This will update your{" "}
-              <span
-                className="cursor-pointer underline hover:brightness-125"
-                onClick={() =>
-                  ideMessenger.post("config/openProfile", {
-                    profileId: undefined,
-                  })
-                }
-              >
-                config file
+            {step === "selectModel" && (
+              <span className="text-description-muted mt-2 block w-full text-center text-xs">
+                This will update your{" "}
+                <span
+                  className="cursor-pointer underline hover:brightness-125"
+                  onClick={() =>
+                    ideMessenger.post("config/openProfile", {
+                      profileId: undefined,
+                    })
+                  }
+                >
+                  config file
+                </span>
               </span>
-            </span>
+            )}
           </div>
         </div>
       </form>
