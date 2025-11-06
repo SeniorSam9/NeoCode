@@ -1,17 +1,14 @@
+//process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 /**
  * This is the entry point for the extension.
  */
-
 import { setupCa } from "core/util/ca";
 import { extractMinimalStackTraceInfo } from "core/util/extractMinimalStackTraceInfo";
 import { Telemetry } from "core/util/posthog";
-import * as vscode from "vscode";
-
 import { SentryLogger } from "core/util/sentry/SentryLogger";
+import * as vscode from "vscode";
 import { getExtensionVersion } from "./util/util";
 export { default as buildTimestamp } from "./.buildTimestamp";
-
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 async function dynamicImportAndActivate(context: vscode.ExtensionContext) {
   await setupCa();

@@ -42,8 +42,8 @@ export function AddModelForm({
     const apiBase = formMethods.watch("apiBase");
     const apiKey = formMethods.watch("apiKey");
 
-    if (!apiBase) {
-      setConnectionError("Please enter API base URL");
+    if (!apiBase || !apiKey) {
+      setConnectionError("Please enter both API base URL and API key");
       return;
     }
 
@@ -51,35 +51,17 @@ export function AddModelForm({
     setConnectionError(null);
 
     try {
-      // Detect if this is Ollama based on the URL or try both endpoints
-      const isOllama =
-        apiBase.includes("11434") || apiBase.toLowerCase().includes("ollama");
-
-      let modelsUrl: string;
-      let headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-
-      if (isOllama) {
-        // Ollama uses /api/tags endpoint and doesn't require authentication
-        modelsUrl = apiBase.endsWith("/")
-          ? `${apiBase}api/tags`
-          : `${apiBase}/api/tags`;
-      } else {
-        // OpenAI-compatible endpoints use /models and require API key
-        if (!apiKey) {
-          setConnectionError("Please enter API key for this provider");
-          return;
-        }
-        modelsUrl = apiBase.endsWith("/")
-          ? `${apiBase}models`
-          : `${apiBase}/models`;
-        headers.Authorization = `Bearer ${apiKey}`;
-      }
+      // OpenAI-compatible endpoints use /models
+      const modelsUrl = apiBase.endsWith("/")
+        ? `${apiBase}models`
+        : `${apiBase}/models`;
 
       const response = await fetch(modelsUrl, {
         method: "GET",
-        headers,
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
@@ -89,38 +71,26 @@ export function AddModelForm({
       }
 
       const data = await response.json();
-      let models: Model[] = [];
 
-      if (isOllama && data.models && Array.isArray(data.models)) {
-        // Ollama response format
-        models = data.models.map((model: any) => ({
-          id: model.name,
-          title: model.name,
-          object: "model",
-          created: model.modified_at
-            ? new Date(model.modified_at).getTime() / 1000
-            : undefined,
-          owned_by: "ollama",
-        }));
-      } else if (data.data && Array.isArray(data.data)) {
+      if (data.data && Array.isArray(data.data)) {
         // OpenAI-compatible response format
-        models = data.data.map((model: any) => ({
+        const models: Model[] = data.data.map((model: any) => ({
           id: model.id,
           title: model.id,
           object: model.object,
           created: model.created,
           owned_by: model.owned_by,
         }));
+
+        setAvailableModels(models);
+        setStep("selectModel");
+
+        // Pre-select the first model if available
+        if (models.length > 0) {
+          setSelectedCustomModel(models[0]);
+        }
       } else {
-        throw new Error("Invalid response format: no models found");
-      }
-
-      setAvailableModels(models);
-      setStep("selectModel");
-
-      // Pre-select the first model if available
-      if (models.length > 0) {
-        setSelectedCustomModel(models[0]);
+        throw new Error("Invalid response format: expected data array");
       }
     } catch (error) {
       console.error("Error fetching models:", error);
@@ -136,18 +106,9 @@ export function AddModelForm({
     const apiBase = formMethods.watch("apiBase");
     const apiKey = formMethods.watch("apiKey");
     const hasValidApiBase = apiBase !== undefined && apiBase.length > 0;
-
-    // Check if this is Ollama (doesn't require API key)
-    const isOllama =
-      apiBase &&
-      (apiBase.includes("11434") || apiBase.toLowerCase().includes("ollama"));
     const hasValidApiKey = apiKey !== undefined && apiKey.length > 0;
 
-    if (isOllama) {
-      return !hasValidApiBase || isConnecting;
-    } else {
-      return !hasValidApiBase || !hasValidApiKey || isConnecting;
-    }
+    return !hasValidApiBase || !hasValidApiKey || isConnecting;
   }
 
   function isSubmitDisabled() {
@@ -167,27 +128,14 @@ export function AddModelForm({
     const apiKey = formMethods.watch("apiKey");
     const apiBase = formMethods.watch("apiBase");
 
-    // Detect if this is Ollama
-    const isOllama =
-      apiBase &&
-      (apiBase.includes("11434") || apiBase.toLowerCase().includes("ollama"));
-
-    const model: any = {
-      provider: isOllama ? "ollama" : "openai",
+    const model = {
+      provider: "openai",
       title: selectedCustomModel.title,
       model: selectedCustomModel.id,
-      underlyingProviderName: isOllama ? "ollama" : "custom",
+      apiKey: apiKey,
+      apiBase: apiBase,
+      underlyingProviderName: "custom",
     };
-
-    // Add API key and base URL only if not Ollama
-    if (isOllama) {
-      // For Ollama, we might need to set the base URL without /api/tags
-      const cleanApiBase = apiBase.replace(/\/api\/tags\/?$/, "");
-      model.apiBase = cleanApiBase;
-    } else {
-      model.apiKey = apiKey;
-      model.apiBase = apiBase;
-    }
 
     ideMessenger.post("config/addModel", { model });
 
@@ -217,9 +165,7 @@ export function AddModelForm({
     <FormProvider {...formMethods}>
       <form onSubmit={formMethods.handleSubmit(onSubmit)}>
         <div className="mx-auto max-w-md p-6">
-          <h1 className="mb-0 text-center text-2xl">
-            {step === "connect" ? "Connect to Provider" : "Select Model"}
-          </h1>
+          <h1 className="mb-0 text-center text-2xl">Connect to NeoCode</h1>
 
           <div className="my-8 flex flex-col gap-6">
             {step === "connect" && (
@@ -232,68 +178,32 @@ export function AddModelForm({
                     id="apiBase"
                     className="w-full"
                     type="text"
-                    placeholder="Enter your provider's API base URL (e.g., http://localhost:11434 for Ollama)"
+                    placeholder="Enter your provider's API base URL"
                     {...formMethods.register("apiBase", { required: true })}
                   />
-                  <div className="mt-2 flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        formMethods.setValue(
-                          "apiBase",
-                          "http://localhost:11434",
-                        )
-                      }
-                      className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800 hover:bg-blue-200"
-                    >
-                      Use Ollama (localhost:11434)
-                    </button>
-                  </div>
                   <span className="text-description-muted mt-1 block text-xs">
-                    Enter the base URL for your AI provider (Ollama:
-                    http://localhost:11434, OpenAI: https://api.openai.com/v1)
+                    Enter the base URL for your models provider
                   </span>
                 </div>
 
                 <div>
                   <label className="mb-1 block text-sm font-medium">
-                    API Key{" "}
-                    {formMethods.watch("apiBase")?.includes("11434") ||
-                    formMethods
-                      .watch("apiBase")
-                      ?.toLowerCase()
-                      .includes("ollama")
-                      ? "(Optional for Ollama)"
-                      : ""}
+                    API Key
                   </label>
                   <Input
                     id="apiKey"
                     className="w-full"
                     type="password"
-                    placeholder={
-                      formMethods.watch("apiBase")?.includes("11434") ||
-                      formMethods
-                        .watch("apiBase")
-                        ?.toLowerCase()
-                        .includes("ollama")
-                        ? "Not required for Ollama"
-                        : "Enter your API key"
-                    }
-                    {...formMethods.register("apiKey")}
+                    placeholder="Enter your API key"
+                    {...formMethods.register("apiKey", { required: true })}
                   />
                   <span className="text-description-muted mt-1 block text-xs">
-                    {formMethods.watch("apiBase")?.includes("11434") ||
-                    formMethods
-                      .watch("apiBase")
-                      ?.toLowerCase()
-                      .includes("ollama")
-                      ? "Ollama runs locally and doesn't require an API key"
-                      : "Enter the API key required for your AI provider"}
+                    Enter the API key required for your models provider
                   </span>
                 </div>
 
                 {connectionError && (
-                  <div className="rounded-md bg-red-50 p-4">
+                  <div className="rounded-lg bg-red-50 p-4">
                     <div className="flex">
                       <div className="ml-3">
                         <h3 className="text-sm font-medium text-red-800">
@@ -311,7 +221,7 @@ export function AddModelForm({
 
             {step === "selectModel" && (
               <>
-                <div className="rounded-md bg-green-50 p-4">
+                <div className="rounded-lg bg-green-50 p-4">
                   <div className="flex">
                     <div className="ml-3">
                       <h3 className="text-sm font-medium text-green-800">
