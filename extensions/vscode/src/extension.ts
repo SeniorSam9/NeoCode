@@ -11,6 +11,8 @@ import { SentryLogger } from "core/util/sentry/SentryLogger";
 import { getExtensionVersion } from "./util/util";
 export { default as buildTimestamp } from "./.buildTimestamp";
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 async function dynamicImportAndActivate(context: vscode.ExtensionContext) {
   await setupCa();
   const { activateExtension } = await import("./activation/activate");
