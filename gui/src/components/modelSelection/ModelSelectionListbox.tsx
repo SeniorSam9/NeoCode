@@ -38,7 +38,7 @@ function ModelSelectionListbox({
                 className="mr-3 h-4 w-4 object-contain object-center"
               />
             )}
-            <span className="text-xs">{selectedProvider.title}</span>
+            <span className="text-sm">{selectedProvider.title}</span>
           </span>
           <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
             <ChevronUpDownIcon
@@ -64,7 +64,7 @@ function ModelSelectionListbox({
                   <ListboxOption
                     key={index}
                     className={({ selected }: { selected: boolean }) =>
-                      ` ${selected ? "bg-list-active" : "bg-input"} hover:bg-list-active hover:text-list-active-foreground relative flex cursor-default cursor-pointer select-none items-center justify-between gap-2 p-1.5 px-3 py-2 pr-4`
+                      ` ${selected ? "bg-list-active" : "bg-input"} hover:bg-list-active hover:text-list-active-foreground relative flex cursor-pointer select-none items-center justify-between gap-2 p-1.5 px-3 py-2 pr-4`
                     }
                     value={option}
                   >
@@ -82,7 +82,7 @@ function ModelSelectionListbox({
                               />
                             )
                           )}
-                          <span className="text-xs">{option.title}</span>
+                          <span className="text-sm">{option.title}</span>
                         </div>
                         {selected && (
                           <CheckIcon className="h-3 w-3" aria-hidden="true" />
@@ -105,7 +105,7 @@ function ModelSelectionListbox({
                   <ListboxOption
                     key={index}
                     className={({ selected }: { selected: boolean }) =>
-                      ` ${selected ? "bg-list-active" : "bg-input"} hover:bg-list-active hover:text-list-active-foreground relative flex cursor-default cursor-pointer select-none items-center justify-between gap-2 p-1.5 px-3 py-2 pr-4`
+                      ` ${selected ? "bg-list-active" : "bg-input"} hover:bg-list-active hover:text-list-active-foreground relative flex cursor-pointer select-none items-center justify-between gap-2 p-1.5 px-3 py-2 pr-4`
                     }
                     value={option}
                   >
@@ -123,7 +123,7 @@ function ModelSelectionListbox({
                               />
                             )
                           )}
-                          <span className="text-xs">{option.title}</span>
+                          <span className="text-sm">{option.title}</span>
                         </div>
 
                         {selected && (

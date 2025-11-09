@@ -239,11 +239,10 @@ const Layout = () => {
   //   }
   // }, [location]);
   useEffect(() => {
-    // const modelConfigured = localStorage.getItem("modelConfigured");
-    // if (modelConfigured === null || modelConfigured === "false") {
-
-    // }
-    setShowAddModelForm(true);
+    const modelConfigured = localStorage.getItem("modelConfigured");
+    if (modelConfigured === null || modelConfigured === "false") {
+      setShowAddModelForm(true);
+    }
   }, []);
 
   return (

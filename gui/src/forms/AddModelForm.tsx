@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Button, Input } from "../components";
 import ModelSelectionListbox from "../components/modelSelection/ModelSelectionListbox";
@@ -37,6 +37,17 @@ export function AddModelForm({
     null,
   );
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current);
+      }
+    };
+  }, []);
 
   async function fetchModels() {
     const apiBase = formMethods.watch("apiBase");
@@ -84,6 +95,18 @@ export function AddModelForm({
 
         setAvailableModels(models);
         setStep("selectModel");
+        setShowSuccessMessage(true);
+
+        // Clear any existing timeout
+        if (successTimeoutRef.current) {
+          clearTimeout(successTimeoutRef.current);
+        }
+
+        // Hide success message after 5 seconds
+        successTimeoutRef.current = setTimeout(() => {
+          setShowSuccessMessage(false);
+          successTimeoutRef.current = null;
+        }, 3000);
 
         // Pre-select the first model if available
         if (models.length > 0) {
@@ -155,10 +178,17 @@ export function AddModelForm({
   }
 
   function goBackToConnect() {
+    // Clear any pending timeout
+    if (successTimeoutRef.current) {
+      clearTimeout(successTimeoutRef.current);
+      successTimeoutRef.current = null;
+    }
+
     setStep("connect");
     setAvailableModels([]);
     setSelectedCustomModel(null);
     setConnectionError(null);
+    setShowSuccessMessage(false);
   }
 
   return (
@@ -221,25 +251,19 @@ export function AddModelForm({
 
             {step === "selectModel" && (
               <>
-                <div className="rounded-lg bg-green-50 p-4">
-                  <div className="flex">
-                    <div className="ml-3">
+                {showSuccessMessage && (
+                  <div className="animate-fade-in rounded-lg bg-green-50">
+                    <div className="flex justify-center">
                       <h3 className="text-sm font-medium text-green-800">
                         Connected Successfully!
                       </h3>
-                      <div className="mt-2 text-sm text-green-700">
-                        <p>
-                          Found {availableModels.length} available models.
-                          Select one below:
-                        </p>
-                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 <div>
-                  <label className="block text-sm font-medium">
-                    Available Models
+                  <label className="block text-lg font-medium">
+                    Select a Model ⬇️:
                   </label>
                   <ModelSelectionListbox
                     selectedProvider={
@@ -259,16 +283,6 @@ export function AddModelForm({
                   <span className="text-description-muted mt-1 block text-xs">
                     Choose the model you want to use for chat
                   </span>
-                </div>
-
-                <div className="mt-4">
-                  <Button
-                    type="button"
-                    onClick={goBackToConnect}
-                    className="mb-2 w-full bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  >
-                    ← Back to Connection
-                  </Button>
                 </div>
               </>
             )}
@@ -290,19 +304,28 @@ export function AddModelForm({
             </Button>
 
             {step === "selectModel" && (
-              <span className="text-description-muted mt-2 block w-full text-center text-xs">
-                This will update your{" "}
-                <span
-                  className="cursor-pointer underline hover:brightness-125"
-                  onClick={() =>
-                    ideMessenger.post("config/openProfile", {
-                      profileId: undefined,
-                    })
-                  }
+              <>
+                <Button
+                  type="button"
+                  onClick={goBackToConnect}
+                  className="border-1 mt-2 w-full border-gray-200 text-gray-200"
                 >
-                  config file
+                  ← Back to Connection
+                </Button>
+                <span className="text-description-muted mt-2 block w-full text-center text-xs">
+                  This will update your{" "}
+                  <span
+                    className="cursor-pointer underline hover:brightness-125"
+                    onClick={() =>
+                      ideMessenger.post("config/openProfile", {
+                        profileId: undefined,
+                      })
+                    }
+                  >
+                    config file
+                  </span>
                 </span>
-              </span>
+              </>
             )}
           </div>
         </div>

@@ -2,7 +2,7 @@
   "name": "neocode",
   "icon": "media/icon.png",
   "author": "NeoAI",
-  "version": "1.0.0",
+  "version": "1.0.0-windows",
   "extensionKind": [
     "ui",
     "workspace"
