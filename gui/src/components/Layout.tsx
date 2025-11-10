@@ -264,7 +264,7 @@ const Layout = () => {
             <div
               style={{
                 scrollbarGutter: "stable both-edges",
-                minHeight: "100%",
+                minHeight: "90%",
                 display: "grid",
                 gridTemplateRows: "1fr auto",
                 filter: showAddModelForm ? "blur(6px)" : "none",
