@@ -9,12 +9,11 @@ function loadCompanyCertificates(): string[] {
   const certs: string[] = [];
 
   try {
-    // Define paths where your company certificates might be stored
     const certPaths = [
-      // Add paths to your company certificates here
+      // adding paths to certificates here
       path.join(__dirname, "..", "..", "certs", "company-root-ca.crt"),
       path.join(__dirname, "..", "..", "certs", "openshift-ca.crt"),
-      // You can also use environment variables
+      // environment variables can also be used
       process.env.COMPANY_ROOT_CA_PATH,
       process.env.OPENSHIFT_CA_PATH,
     ].filter(Boolean) as string[];
@@ -35,7 +34,7 @@ function loadCompanyCertificates(): string[] {
 
 export async function setupCa() {
   try {
-    // Load company certificates first
+    // loading company certificates first
     const companyCerts = loadCompanyCertificates();
 
     switch (process.platform) {
@@ -55,7 +54,7 @@ export async function setupCa() {
         break;
     }
 
-    // Add company certificates to the global agent
+    // adding company certificates to the global agent
     if (companyCerts.length > 0) {
       const existingCa = globalAgent.options.ca;
       if (Array.isArray(existingCa)) {
