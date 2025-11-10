@@ -5,13 +5,10 @@ import {
   Cog6ToothIcon,
   KeyIcon,
 } from "@heroicons/react/24/outline";
-import { DISCORD_LINK, GITHUB_LINK } from "core/util/constants";
 import { useContext, useMemo } from "react";
 import { GhostButton, SecondaryButton } from "../../components";
 import { useEditModel } from "../../components/mainInput/Lump/useEditBlock";
 import { useMainEditor } from "../../components/mainInput/TipTapEditor";
-import { DiscordIcon } from "../../components/svg/DiscordIcon";
-import { GithubIcon } from "../../components/svg/GithubIcon";
 import ToggleDiv from "../../components/ToggleDiv";
 import { useAuth } from "../../context/Auth";
 import { IdeMessengerContext } from "../../context/IdeMessenger";
@@ -280,7 +277,7 @@ const StreamErrorDialog = ({ error }: StreamErrorProps) => {
         </div>
       )}
 
-      <div>
+      {/* <div>
         <span className="text-base font-medium">Report this error</span>
         <div className="mt-2 flex flex-row flex-wrap items-center gap-2">
           <GhostButton
@@ -302,7 +299,7 @@ const StreamErrorDialog = ({ error }: StreamErrorProps) => {
             <span className="xs:flex hidden">Discord</span>
           </GhostButton>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
